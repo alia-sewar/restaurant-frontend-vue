@@ -45,7 +45,9 @@ function logout() {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: userStore.getToken() ? "Bearer " + userStore.getToken() : "none",
+          Authorization: userStore.getToken()
+            ? "Bearer " + userStore.getToken()
+            : "none",
         },
       }
     )
@@ -110,7 +112,9 @@ function logout() {
                     alt="Header Avatar"
                     style="width: 21px"
                   />
-                  <span class="d-none d-sm-inline-block ms-2">{{ loggedUserName }}</span>
+                  <span class="d-none d-sm-inline-block ms-2">{{
+                    loggedUserName
+                  }}</span>
                   <i
                     class="fa fa-fw fa-angle-down d-none d-sm-inline-block opacity-50 ms-1 mt-1"
                   ></i>
@@ -119,7 +123,9 @@ function logout() {
                   class="dropdown-menu dropdown-menu-md dropdown-menu-end p-0 border-0"
                   aria-labelledby="page-header-user-dropdown"
                 >
-                  <div class="p-3 text-center bg-body-light border-bottom rounded-top">
+                  <div
+                    class="p-3 text-center bg-body-light border-bottom rounded-top"
+                  >
                     <img
                       class="img-avatar img-avatar48 img-avatar-thumb"
                       src="/assets/media/avatars/avatar10.jpg"
