@@ -14,7 +14,6 @@ store.setLayout({
   footer: false,
 });
 
-
 // Set various template options for this layout variation
 store.headerStyle({ mode: "light" });
 store.mainContent({ mode: "boxed" });
@@ -31,15 +30,12 @@ store.mainContent({ mode: "boxed" });
           :to="{ name: 'landing' }"
           class="fw-bold fs-lg tracking-wider text-dual me-2"
         >
-        World Point
-        
+          BeInMedia
         </RouterLink>
         <!-- END Logo -->
 
         <!-- Version -->
-        <div
-          class="fs-xs fw-medium py-1 px-3 rounded-pill bg-body-dark text-dark"
-        >
+        <div class="fs-xs fw-medium py-1 px-3 rounded-pill bg-body-dark text-dark">
           v{{ store.app.version }}
         </div>
       </div>
@@ -119,7 +115,6 @@ store.mainContent({ mode: "boxed" });
         </div>
       </div>
       <!-- END Options -->
- 
     </template>
     <!-- END Header Content Right -->
   </BaseLayout>

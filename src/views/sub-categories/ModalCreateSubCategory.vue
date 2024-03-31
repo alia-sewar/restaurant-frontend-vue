@@ -6,16 +6,16 @@ import useVuelidate from "@vuelidate/core";
 import { required, minLength } from "@vuelidate/validators";
 import toast from "../../components/ToastBlock.vue";
 
-const BlockBank = ref(null);
+const BlockSubCategory = ref(null);
 
 // Input state variables
 const state = reactive({
   name: null,
 });
-const emit = defineEmits(["getBanks"]);
+const emit = defineEmits(["getSubCategories"]);
 
-function getBanks() {
-  emit("getBanks");
+function getSubCategories() {
+  emit("getSubCategories");
 }
 // Validation rules
 const rules = computed(() => {
@@ -32,18 +32,18 @@ const v$ = useVuelidate(rules, state);
 
 // On form submission
 async function onSubmit() {
-  BlockBank.value.statusLoading();
+  BlockSubCategory.value.statusLoading();
   const result = await v$.value.$validate();
 
   if (!result) {
-    BlockBank.value.statusNormal();
+    BlockSubCategory.value.statusNormal();
     return;
   }
 
   // perform async actions
   const response = await axios
     .post(
-      import.meta.env.VITE_API_URL + "/add_bank",
+      import.meta.env.VITE_API_URL_USER + "/sub-categories/create",
       {
         ...state,
       },
@@ -52,7 +52,7 @@ async function onSubmit() {
       }
     )
     .then(async (result) => {
-      toast.fire("Success", "Bank created successfully", "success");
+      toast.fire("Success", "Sub Category created successfully", "success");
     })
     .catch((error) => {
       if (error.response) {
@@ -62,8 +62,8 @@ async function onSubmit() {
     })
     .finally(() => {
       state.name = null;
-      getBanks();
-      BlockBank.value.statusNormal();
+      getSubCategories();
+      BlockSubCategory.value.statusNormal();
     });
 }
 </script>
@@ -71,15 +71,20 @@ async function onSubmit() {
 <template>
   <div
     class="modal"
-    id="modal-create-bank"
+    id="modal-create-sub-category"
     tabindex="-1"
     role="dialog"
-    aria-labelledby="modal-create-bank"
+    aria-labelledby="modal-create-sub-category"
     aria-hidden="true"
   >
     <div class="modal-dialog" role="document">
       <div class="modal-content">
-        <BaseBlock ref="BlockBank" title="Create New Bank" transparent class="mb-0">
+        <BaseBlock
+          ref="BlockSubCategory"
+          title="Create New Sub Category"
+          transparent
+          class="mb-0"
+        >
           <template #options>
             <button
               type="button"
@@ -98,7 +103,7 @@ async function onSubmit() {
                   <div class="col-12">
                     <div class="mb-4">
                       <label class="form-label" for="name"
-                        >Bank Name <span class="text-danger">*</span></label
+                        >Sub Category Name <span class="text-danger">*</span></label
                       >
                       <br />
                       <br />
@@ -111,13 +116,13 @@ async function onSubmit() {
                         }"
                         v-model="state.name"
                         @blur="v$.name.$touch"
-                        placeholder="Enter a Bank Name.."
+                        placeholder="Enter a Sub Category Name.."
                       />
                       <div
                         v-if="v$.name.$errors.length"
                         class="invalid-feedback animated fadeIn"
                       >
-                        Please enter a Bank Name.
+                        Please enter a Sub Category Name.
                       </div>
                     </div>
                   </div>

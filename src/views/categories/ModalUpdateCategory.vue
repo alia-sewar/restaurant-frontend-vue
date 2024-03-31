@@ -136,7 +136,9 @@ async function onSubmit() {
 
                 <div class="row items-push">
                   <div class="col-lg-7 offset-lg-4">
-                    <button type="submit" class="btn btn-alt-primary">Submit</button>
+                    <button type="submit" class="btn btn-alt-primary">
+                      Submit
+                    </button>
                   </div>
                 </div>
               </BaseBlock>

@@ -2,12 +2,11 @@
 import { onMounted, reactive, ref, watch } from "vue";
 import axios from "axios";
 import { headers } from "@/shares/share";
-import toast from "@/components/ToastBlock.vue";
-import ModalCreateBank from "./ModalCreateBank.vue";
-import ModalUpdateBank from "./ModalUpdateBank.vue";
+import ModalCreateCategory from "./ModalCreateCategory.vue";
+import ModalUpdateCategory from "./ModalUpdateCategory.vue";
 import PaginationBlock from "@/components/PaginationBlock.vue";
 
-const banks = reactive({
+const categories = reactive({
   list: null,
 });
 const state = reactive({
@@ -20,130 +19,34 @@ const state = reactive({
 });
 watch(
   () => state.currentPage,
-  () => getBanks()
+  () => getCategories()
 );
-const bank = ref(null);
+const category = ref(null);
 
-const UpdateBank = async (data) => {
-  bank.value = data;
+const UpdateCategory = async (data) => {
+  category.value = data;
 };
-const deactivateBank = async (id) => {
-  toast
-    .fire({
-      title: "Are you sure?",
-      text: "Please confirm!",
-      icon: "warning",
-      showCancelButton: true,
-      customClass: {
-        confirmButton: "btn btn-danger m-1",
-        cancelButton: "btn btn-secondary m-1",
-      },
-      confirmButtonText: "Yes, confirm it!",
-      html: false,
-      preConfirm: () => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve();
-          }, 50);
-        });
-      },
-    })
-    .then(async (result) => {
-      if (result.isConfirmed) {
-        const response = await axios
-          .post(
-            import.meta.env.VITE_API_URL + "/deactivate_deposit_bank",
-            {
-              id: id,
-            },
-            { headers: headers() }
-          )
-          .then(async (result) => {
-            toast.fire("Success", "Bank deactivated successfully", "success");
-          })
-          .catch((error) => {
-            if (error.response) {
-              return toast.fire("Oops...", error.response.data.message, "error");
-            }
-            return toast.fire("Oops...", "Something went wrong!", "error");
-          })
-          .finally(() => {
-            getBanks();
-          });
-      } else if (result.dismiss === "cancel") {
-        toast.fire("Cancelled", "You have cancelled the action!", "error");
-      }
-    });
-};
-const activateBank = async (id) => {
-  toast
-    .fire({
-      title: "Are you sure?",
-      text: "Please confirm!",
-      icon: "warning",
-      showCancelButton: true,
-      customClass: {
-        confirmButton: "btn btn-danger m-1",
-        cancelButton: "btn btn-secondary m-1",
-      },
-      confirmButtonText: "Yes, confirm it!",
-      html: false,
-      preConfirm: () => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve();
-          }, 50);
-        });
-      },
-    })
-    .then(async (result) => {
-      if (result.isConfirmed) {
-        const response = await axios
-          .post(
-            import.meta.env.VITE_API_URL + "/activate_deposit_bank",
-            {
-              id: id,
-            },
-            { headers: headers() }
-          )
-          .then(async (response) => {
-            toast.fire("Success", "Bank activate successfully", "success");
-          })
-          .catch((error) => {
-            if (error.response) {
-              return toast.fire("Oops...", error.response.data.message, "error");
-            }
-            return toast.fire("Oops...", "Something went wrong!", "error");
-          })
-          .finally(() => {
-            getBanks();
-          });
-      } else if (result.dismiss === "cancel") {
-        toast.fire("Cancelled", "You have cancelled the action!", "error");
-      }
-    });
-};
-const getBanks = async () => {
+const getCategories = async () => {
   const response = await axios
     .post(
-      import.meta.env.VITE_API_URL + "/get_deposit_banks",
+      import.meta.env.VITE_API_URL_USER + "/categories",
       { page: state.currentPage },
       { headers: headers() }
     )
     .then(async (response) => {
-      banks.list = response.data.data;
-      state.lastPage = response.data.last_page;
-      state.total = response.data.total;
-      state.from = response.data.from;
-      state.to = response.data.to;
+      categories.list = response.data.data.data;
+
+      console.log(categories.list);
+      state.lastPage = response.data.data.last_page;
+      state.total = response.data.data.total;
+      state.from = response.data.data.from;
+      state.to = response.data.data.to;
     })
     .catch((error) => {})
-    .finally(() => {
-      //getBanks();
-    });
+    .finally(() => {});
 };
 onMounted(async () => {
-  await getBanks();
+  await getCategories();
 });
 </script>
 
@@ -158,9 +61,9 @@ onMounted(async () => {
               class="btn btn-sm btn-alt-secondary"
               title="Create New Bank"
               data-bs-toggle="modal"
-              data-bs-target="#modal-create-bank"
+              data-bs-target="#modal-create-category"
             >
-              Create New Bank
+              Create New Category
             </button>
           </div>
         </div>
@@ -180,56 +83,38 @@ onMounted(async () => {
           <thead>
             <tr>
               <th class="text-center">#</th>
-              <th>Bank</th>
+              <th>Category</th>
               <th>Active</th>
-              <th>Created At</th>
+              <th>Created By</th>
               <th class="text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(bank, index) in banks.list" :key="bank.id">
+            <tr v-for="(category, index) in categories.list" :key="category.id">
               <td class="text-center">
                 {{ index + 1 }}
               </td>
               <td class="fw-semibold fs-sm">
-                {{ bank.name }}
+                {{ category.name }}
               </td>
               <td>
-                <span v-if="bank.is_active == 1" class="text-success"> Active </span>
+                <span v-if="category.is_active == 1" class="text-success"> Active </span>
                 <span v-else class="text-danger"> Inactive </span>
               </td>
               <td>
-                {{ new Date(bank.created_at).toLocaleString() }}
+                {{ category.added_by }}
               </td>
               <td class="text-center">
                 <div class="btn-group">
                   <button
                     type="button"
-                    class="btn btn-sm btn-alt-warning"
-                    title="Deactivate Bank"
-                    v-if="bank.is_active == 1"
-                    @click="deactivateBank(bank.id)"
-                  >
-                    <i>Deactivate bank</i>
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-alt-success"
-                    title="Activate Bank"
-                    v-if="bank.is_active == 0"
-                    @click="activateBank(bank.id)"
-                  >
-                    <i>Activate bank</i>
-                  </button>
-                  <button
-                    type="button"
                     class="btn btn-sm btn-alt-danger"
                     data-bs-toggle="modal"
-                    data-bs-target="#modal-update-bank"
-                    title="Delete New bank"
-                    @click="UpdateBank(bank)"
+                    data-bs-target="#modal-update-category"
+                    title="Delete New category"
+                    @click="UpdateCategory(category)"
                   >
-                    <i>Update bank</i>
+                    <i>Update category</i>
                   </button>
                 </div>
               </td>
@@ -238,16 +123,17 @@ onMounted(async () => {
         </table>
       </div>
       <!-- END Recent Orders Table -->
-
-      <pagination-block
-        :total="state.total"
-        :to="state.to"
-        :from="state.from"
-        :lastPage="state.lastPage"
-        v-model:currentPage="state.currentPage"
-      />
+      <div v-if="categories.list">
+        <pagination-block
+          :total="state.total"
+          :to="state.to"
+          :from="state.from"
+          :lastPage="state.lastPage"
+          v-model:currentPage="state.currentPage"
+        />
+      </div>
     </BaseBlock>
-    <ModalCreateBank @getBanks="getBanks" />
-    <ModalUpdateBank @getBanks="getBanks" :bank="bank" />
+    <ModalCreateCategory @getCategories="getCategories" />
+    <ModalUpdateCategory @getCategories="getCategories" :category="category" />
   </div>
 </template>

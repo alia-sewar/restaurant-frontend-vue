@@ -12,10 +12,10 @@ const BlockBank = ref(null);
 const state = reactive({
   name: null,
 });
-const emit = defineEmits(["getBanks"]);
+const emit = defineEmits(["getCategories"]);
 
-function getBanks() {
-  emit("getBanks");
+function getCategories() {
+  emit("getCategories");
 }
 // Validation rules
 const rules = computed(() => {
@@ -43,7 +43,7 @@ async function onSubmit() {
   // perform async actions
   const response = await axios
     .post(
-      import.meta.env.VITE_API_URL + "/add_deposit_bank",
+      import.meta.env.VITE_API_URL_USER + "/categories/create",
       {
         ...state,
       },
@@ -52,7 +52,7 @@ async function onSubmit() {
       }
     )
     .then(async (result) => {
-      toast.fire("Success", "Bank created successfully", "success");
+      toast.fire("Success", "Category created successfully", "success");
     })
     .catch((error) => {
       if (error.response) {
@@ -62,7 +62,7 @@ async function onSubmit() {
     })
     .finally(() => {
       state.name = null;
-      getBanks();
+      getCategories();
       BlockBank.value.statusNormal();
     });
 }
@@ -71,15 +71,20 @@ async function onSubmit() {
 <template>
   <div
     class="modal"
-    id="modal-create-bank"
+    id="modal-create-category"
     tabindex="-1"
     role="dialog"
-    aria-labelledby="modal-create-bank"
+    aria-labelledby="modal-create-category"
     aria-hidden="true"
   >
     <div class="modal-dialog" role="document">
       <div class="modal-content">
-        <BaseBlock ref="BlockBank" title="Create New Bank" transparent class="mb-0">
+        <BaseBlock
+          ref="BlockBank"
+          title="Create New Category"
+          transparent
+          class="mb-0"
+        >
           <template #options>
             <button
               type="button"
@@ -98,7 +103,7 @@ async function onSubmit() {
                   <div class="col-12">
                     <div class="mb-4">
                       <label class="form-label" for="name"
-                        >Bank Name <span class="text-danger">*</span></label
+                        >Category Name <span class="text-danger">*</span></label
                       >
                       <br />
                       <br />
@@ -111,13 +116,13 @@ async function onSubmit() {
                         }"
                         v-model="state.name"
                         @blur="v$.name.$touch"
-                        placeholder="Enter a Bank Name.."
+                        placeholder="Enter a Category Name.."
                       />
                       <div
                         v-if="v$.name.$errors.length"
                         class="invalid-feedback animated fadeIn"
                       >
-                        Please enter a Bank Name.
+                        Please enter a category Name.
                       </div>
                     </div>
                   </div>
@@ -126,7 +131,9 @@ async function onSubmit() {
 
                 <div class="row items-push">
                   <div class="col-lg-7 offset-lg-4">
-                    <button type="submit" class="btn btn-alt-primary">Submit</button>
+                    <button type="submit" class="btn btn-alt-primary">
+                      Submit
+                    </button>
                   </div>
                 </div>
               </BaseBlock>
