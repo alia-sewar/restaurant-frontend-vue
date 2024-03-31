@@ -50,14 +50,14 @@ onMounted(async () => {
 
 <template>
   <div class="content">
-    <BaseBlock title="Banks">
+    <BaseBlock title="Sub Category">
       <div class="row">
         <div class="col-lg-4">
           <div class="form-floating mb-4">
             <button
               type="button"
               class="btn btn-sm btn-alt-secondary"
-              title="Create New Bank"
+              title="Create New Sub Category"
               data-bs-toggle="modal"
               data-bs-target="#modal-create-sub-category"
             >
@@ -70,7 +70,7 @@ onMounted(async () => {
   </div>
 
   <div class="content">
-    <BaseBlock title="Banks">
+    <BaseBlock title="Sub Category">
       <template #options>
         <button type="button" class="btn-block-option">
           <i class="si si-settings"></i>
@@ -88,7 +88,10 @@ onMounted(async () => {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(subCategory, index) in subCategories.list" :key="subCategory.id">
+            <tr
+              v-for="(subCategory, index) in subCategories.list"
+              :key="subCategory.id"
+            >
               <td class="text-center">
                 {{ index + 1 }}
               </td>

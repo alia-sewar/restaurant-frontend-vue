@@ -52,7 +52,7 @@ onMounted(async () => {
 
 <template>
   <div class="content">
-    <BaseBlock title="Banks">
+    <BaseBlock title="Category">
       <div class="row">
         <div class="col-lg-4">
           <div class="form-floating mb-4">
@@ -72,7 +72,7 @@ onMounted(async () => {
   </div>
 
   <div class="content">
-    <BaseBlock title="Banks">
+    <BaseBlock title="Category">
       <template #options>
         <button type="button" class="btn-block-option">
           <i class="si si-settings"></i>
@@ -98,7 +98,9 @@ onMounted(async () => {
                 {{ category.name }}
               </td>
               <td>
-                <span v-if="category.is_active == 1" class="text-success"> Active </span>
+                <span v-if="category.is_active == 1" class="text-success">
+                  Active
+                </span>
                 <span v-else class="text-danger"> Inactive </span>
               </td>
               <td>

@@ -1,131 +1,135 @@
 <script setup>
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import axios from "axios";
 import { headers } from "@/shares/share";
-import toast from "@/components/ToastBlock.vue";
-import ModalCreateAd from "./ModalCreateAd.vue";
+import ModalCreateItem from "./ModalCreateItem.vue";
+import PaginationBlock from "@/components/PaginationBlock.vue";
 
-const BlockCreate = ref(null);
-const ads = reactive({
+const items = reactive({
   list: null,
 });
+const state = reactive({
+  loading: false,
+  currentPage: 1,
+  lastPage: null,
+  total: null,
+  from: null,
+  to: null,
+});
+watch(
+  () => state.currentPage,
+  () => getItems()
+);
+const item = ref(null);
 
-const deleteAd = async (id) => {
-  toast
-    .fire({
-      title: "Are you sure?",
-      text: "Please confirm!",
-      icon: "warning",
-      showCancelButton: true,
-      customClass: {
-        confirmButton: "btn btn-danger m-1",
-        cancelButton: "btn btn-secondary m-1",
-      },
-      confirmButtonText: "Yes, confirm it!",
-      html: false,
-      preConfirm: () => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve();
-          }, 50);
-        });
-      },
-    })
-    .then(async (result) => {
-      if (result.isConfirmed) {
-        BlockCreate.value.statusLoading();
-        const response = await axios
-          .post(
-            import.meta.env.VITE_API_URL + "/delete_ad",
-            {
-              id: id,
-            },
-            { headers: headers() }
-          )
-          .then((response) => {
-            toast.fire("Success", "Deleted Ad successfully!", "success");
-          })
-          .catch((error) => {
-            if (error.response) {
-              return toast.fire("Oops...", error.response.data.message, "error");
-            }
-            return toast.fire("Oops...", "Something went wrong!", "error");
-          })
-          .finally(() => {
-            getAds();
-            BlockCreate.value.statusNormal();
-          });
-      }
-    });
+const UpdateItem = async (data) => {
+  item.value = data;
 };
-const getAds = async () => {
+const getItems = async () => {
   const response = await axios
-    .post(import.meta.env.VITE_API_URL + "/get_ads_list", {}, { headers: headers() })
-    .then((response) => {
-      ads.list = response.data.data;
+    .post(
+      import.meta.env.VITE_API_URL_USER + "/items",
+      { page: state.currentPage },
+      { headers: headers() }
+    )
+    .then(async (response) => {
+      items.list = response.data.data.data;
+      state.lastPage = response.data.data.last_page;
+      state.total = response.data.data.total;
+      state.from = response.data.data.from;
+      state.to = response.data.data.to;
     })
-    .catch((error) => {
-      if (error.response) {
-        return toast.fire("Oops...", error.response.data.message, "error");
-      }
-      return toast.fire("Oops...", "Something went wrong!", "error");
-    })
+    .catch((error) => {})
     .finally(() => {});
 };
-
 onMounted(async () => {
-  await getAds();
+  await getItems();
 });
 </script>
 
 <template>
   <div class="content">
-    <BaseBlock title="Ad">
+    <BaseBlock title="items">
       <div class="row">
         <div class="col-lg-4">
           <div class="form-floating mb-4">
             <button
               type="button"
               class="btn btn-sm btn-alt-secondary"
-              title="Create Ad"
+              title="Create New item"
               data-bs-toggle="modal"
-              data-bs-target="#modal-create-ad"
+              data-bs-target="#modal-create-item"
             >
-              Create Ad
+              Create New Item
             </button>
           </div>
         </div>
       </div>
     </BaseBlock>
   </div>
+
   <div class="content">
-    <BaseBlock title="Ads" ref="BlockCreate">
-      <div class="row items-push">
-        <div class="col-md-4 animated fadeIn" v-for="ad in ads.list" :key="ad.id">
-          <div class="options-container">
-            <img class="img-fluid options-item" :src="ad.image" alt="Image" />
-            <div class="options-overlay bg-black-75">
-              <div class="options-overlay-content">
-                <h3 class="h4 text-white mb-2">
-                  {{ ad.title }}
-                </h3>
-                <div class="space-x-2">
-                  <a
-                    class="btn btn-sm btn-alt-secondary"
-                    href="javascript:void(0)"
-                    @click="deleteAd(ad.id)"
+    <BaseBlock title="items">
+      <template #options>
+        <button type="button" class="btn-block-option">
+          <i class="si si-settings"></i>
+        </button>
+      </template>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped table-vcenter">
+          <thead>
+            <tr>
+              <th class="text-center">#</th>
+              <th>Item</th>
+              <th>Active</th>
+              <th>Created By</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in items.list" :key="item.id">
+              <td class="text-center">
+                {{ index + 1 }}
+              </td>
+              <td class="fw-semibold fs-sm">
+                {{ item.name }}
+              </td>
+              <td>
+                <span v-if="item.is_active == 1" class="text-success"> Active </span>
+                <span v-else class="text-danger"> Inactive </span>
+              </td>
+              <td>
+                {{ item.added_by }}
+              </td>
+              <td class="text-center">
+                <div class="btn-group">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-alt-danger"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modal-update-item"
+                    title="Delete New item"
+                    @click="UpdateItem(item)"
                   >
-                    <i class="fa fa-times text-danger me-1"></i>
-                    Delete
-                  </a>
+                    <i>Update item</i>
+                  </button>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- END Recent Orders Table -->
+      <div v-if="items.list">
+        <pagination-block
+          :total="state.total"
+          :to="state.to"
+          :from="state.from"
+          :lastPage="state.lastPage"
+          v-model:currentPage="state.currentPage"
+        />
       </div>
     </BaseBlock>
-
-    <ModalCreateAd @get-ads="getAds" />
+    <ModalCreateItem @getItems="getItems" />
   </div>
 </template>
